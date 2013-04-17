@@ -61,7 +61,6 @@ namespace FeedLister
 
 
 
-        //TODO: Empty values must be treated as null.
         public static Head Parse(XElement headElement)
         {
             var title = GetStringElementValue(headElement, "title");
