@@ -14,6 +14,8 @@
     limitations under the License.
 \******************************************************************************/
 
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 
@@ -21,26 +23,17 @@ using System.Xml.Linq;
 
 namespace FeedLister
 {
-    public class Body : OpmlElement
+    public abstract class OpmlElement
     {
-        public Outline[] Outlines { get; private set; } // At least one required.
-
-
-
-        public Body(Outline[] outlines)
+        protected static IEnumerable<XElement> GetChildElements(XElement rootElement, XName elementName, bool required)
         {
-            this.Outlines = outlines;
-        }
+            var elements = rootElement.Descendants(elementName);
+            if (required && elements.Any() == false)
+            {
+                throw new Exception("The specified OPML document is not an OPML formatted document. Missing '" + elementName.LocalName + "' tag under the '" + rootElement.Name.LocalName + "' tag.");
+            }
 
-
-
-        public static Body Parse(XElement bodyElement)
-        {
-            var outlineElements = GetChildElements(bodyElement, "outline", true);
-            var outlines = outlineElements.Select(x => Outline.Parse(x)).ToArray();
-            
-            var body = new Body(outlines);
-            return body;
+            return elements;
         }
     }
 }

@@ -42,6 +42,7 @@
     <Compile Include="Body.cs" />
     <Compile Include="Head.cs" />
     <Compile Include="OpmlDocument.cs" />
+    <Compile Include="OpmlElement.cs" />
     <Compile Include="Outline.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
