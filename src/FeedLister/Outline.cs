@@ -15,17 +15,18 @@
 \******************************************************************************/
 
 using System;
+using System.Linq;
+using System.Xml.Linq;
 
 
 
 namespace FeedLister
 {
-    public class Outline
+    public class Outline : OpmlElement
     {
         public Outline[] Outlines { get; private set; }
         public string Text { get; private set; } // Required, may contain HTML markup.
         public string Type { get; private set; } // Type 'rss' defined by OPML 2.0.
-        public string Title { get; private set; }
         public bool IsComment { get; private set; }
         public bool IsBreakPoint { get; private set; }
 
@@ -33,6 +34,7 @@ namespace FeedLister
         public string Categories { get; private set; } // OPML 2.0.
         
         // All fields below are for OPML 2.0 type 'rss'
+        public string Title { get; private set; }
         public Uri XmlUrl { get; private set; } // Required.
         public string Description { get; private set; }
         public Uri HtmlUrl { get; private set; }
@@ -42,17 +44,30 @@ namespace FeedLister
         // All fields below are for OPML 2.0 type 'link' or 'include'.
         public Uri Url { get; private set; } // For type 'include', must point to an OPML file that will be included in-place.
 
-
-
         
-        public Outline(Outline[] childOutlines, string text, string type, string title, bool isComment = false, bool isBreakPoint = false)
+        
+        public Outline(Outline[] childOutlines, string text, string type, bool isComment = false, bool isBreakPoint = false)
         {
             this.Outlines = childOutlines;
             this.Text = text;
             this.Type = type;
-            this.Title = title;
             this.IsComment = isComment;
             this.IsBreakPoint = isBreakPoint;
+        }
+
+
+
+        public static Outline Parse(XElement outlineElement)
+        {
+            Outline[] childOutlines = null;
+            var outlineElements = GetChildElements(outlineElement, "outline", false);
+            if(outlineElements.Any())
+            {
+                childOutlines = outlineElements.Select(x => Outline.Parse(x)).ToArray();
+            }
+
+            var outline = new Outline(childOutlines, null, null);
+            return outline;
         }
     }
 }
