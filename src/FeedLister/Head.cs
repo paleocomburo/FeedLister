@@ -1,17 +1,17 @@
 ﻿/******************************************************************************\
-Copyright 2013 Jeroen-bart Engelen
+    Copyright 2013 Jeroen-bart Engelen
 
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
 
-     http://www.apache.org/licenses/LICENSE-2.0
+    http://www.apache.org/licenses/LICENSE-2.0
 
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
 \******************************************************************************/
 
 using System;
@@ -74,7 +74,7 @@ namespace FeedLister
             var expansionStateElement = headElement.Descendants("expansionState").FirstOrDefault();
             var expansionStateValue = GetSafeValue(expansionStateElement);
             int[] expansionState = null;
-            if (expansionStateValue != null)
+            if (String.IsNullOrWhiteSpace(expansionStateValue) == false)
             {
                 var values = expansionStateValue.Split(',');
                 expansionState = values.Select(x =>
@@ -151,7 +151,7 @@ namespace FeedLister
         {
             Uri result = null;
 
-            if (value != null)
+            if (String.IsNullOrWhiteSpace(value) == false)
             {
                 Uri parsedUri;
                 if (Uri.TryCreate(value, UriKind.Absolute, out parsedUri) == false)
@@ -171,7 +171,7 @@ namespace FeedLister
         {
             int? result = null;
 
-            if (value != null)
+            if (String.IsNullOrWhiteSpace(value) == false)
             {
                 int parsedInt;
                 if (Int32.TryParse(value, out parsedInt) == false)
@@ -191,7 +191,7 @@ namespace FeedLister
         {
             DateTime? result = null;
 
-            if (value != null)
+            if (String.IsNullOrWhiteSpace(value) == false)
             {
                 DateTime parsedDateTime;
                 if (DateTime.TryParse(value, out parsedDateTime) == false)
