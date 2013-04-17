@@ -91,9 +91,9 @@ namespace FeedLister
             }
 
             var bodyTag = bodyTagList.First();
-            //TODO: Parse the <body>-tag.
+            var body = Body.Parse(bodyTag);
 
-            var opmlDocument = new OpmlDocument(opmlVersion, head, null);
+            var opmlDocument = new OpmlDocument(opmlVersion, head, body);
             return opmlDocument;
         }
     }
