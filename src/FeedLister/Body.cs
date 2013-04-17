@@ -15,6 +15,9 @@
 \******************************************************************************/
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Xml.Linq;
 
 
 
@@ -29,6 +32,30 @@ namespace FeedLister
         public Body(Outline[] outlines)
         {
             this.Outlines = outlines;
+        }
+
+
+
+        public static Body Parse(XElement bodyElement)
+        {
+            var outlineElements = GetChildElements(bodyElement, "outline");
+            var outlines = outlineElements.Select(x => Outline.Parse(x)).ToArray();
+            
+            var body = new Body(outlines);
+            return body;
+        }
+
+
+
+        private static IEnumerable<XElement> GetChildElements(XElement rootElement, XName elementName)
+        {
+            var elements = rootElement.Descendants(elementName);
+            if(elements.Any() == false)
+            {
+                throw new Exception("The specified OPML document is not an OPML formatted document. Missing 'outline' tag under the 'body' tag.");
+            }
+
+            return elements;
         }
     }
 }
