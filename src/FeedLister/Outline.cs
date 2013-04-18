@@ -46,7 +46,7 @@ namespace FeedLister
 
         
         
-        public Outline(Outline[] childOutlines, string text, string type, bool isComment = false, bool isBreakPoint = false)
+        public Outline(Outline[] childOutlines, string text, string type, bool isComment, bool isBreakPoint = false)
         {
             this.Outlines = childOutlines;
             this.Text = text;
@@ -81,6 +81,7 @@ namespace FeedLister
             }
 
             string type = null;
+            bool isComment = false;
             var outlineAttributes = outlineElement.Attributes();
             if (outlineAttributes.Any())
             {
@@ -96,11 +97,19 @@ namespace FeedLister
                         case "type":
                             type = String.IsNullOrWhiteSpace(attribute.Value) ? null : attribute.Value;
                             break;
+
+                        case "isComment":
+                            var isCommentValue = String.IsNullOrWhiteSpace(attribute.Value) ? "false" : attribute.Value;
+                            if(String.Compare(isCommentValue, "true", StringComparison.OrdinalIgnoreCase) == 0)
+                            {
+                                isComment = true;
+                            }
+                            break;
                     }
                 }
             }
 
-            var outline = new Outline(childOutlines, text, type);
+            var outline = new Outline(childOutlines, text, type, isComment);
             return outline;
         }
     }
