@@ -81,7 +81,7 @@ namespace FeedLister
             }
 
             string type = null;
-            bool isComment = false;
+            bool isComment = false, isBreakpoint = false;
             var outlineAttributes = outlineElement.Attributes();
             if (outlineAttributes.Any())
             {
@@ -105,11 +105,19 @@ namespace FeedLister
                                 isComment = true;
                             }
                             break;
+
+                        case "isBreakpoint":
+                            var isBreakpointValue = String.IsNullOrWhiteSpace(attribute.Value) ? "false" : attribute.Value;
+                            if (String.Compare(isBreakpointValue, "true", StringComparison.OrdinalIgnoreCase) == 0)
+                            {
+                                isBreakpoint = true;
+                            }
+                            break;
                     }
                 }
             }
 
-            var outline = new Outline(childOutlines, text, type, isComment);
+            var outline = new Outline(childOutlines, text, type, isComment, isBreakpoint);
             return outline;
         }
     }
