@@ -15,6 +15,7 @@
 \******************************************************************************/
 
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Xml.Linq;
 
@@ -22,6 +23,7 @@ using System.Xml.Linq;
 
 namespace FeedLister
 {
+    [DebuggerDisplay("Outline, Text: {Text}")]
     public class Outline : OpmlElement
     {
         public Outline[] Outlines { get; private set; }
