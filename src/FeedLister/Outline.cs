@@ -74,13 +74,33 @@ namespace FeedLister
             }
 
             var text = textAttribute.Value;
+            if(String.IsNullOrWhiteSpace(text))
+            {
+                // Strictly speaking the text attribute is only required for OPML 2.0, but we'll be a little more strict.
+                throw new Exception("The specified OPML document is not an OPML formatted document. There is an empty 'text' attribute in an 'outline' element.");
+            }
 
-            //var outlineAttributes = outlineElement.Attributes();
-            //if(outlineAttributes.Any())
-            //{
-            //}
+            string type = null;
+            var outlineAttributes = outlineElement.Attributes();
+            if (outlineAttributes.Any())
+            {
+                foreach(var attribute in outlineAttributes)
+                {
+                    var attributeName = attribute.Name.ToString();
+                    switch (attributeName)
+                    {
+                        case "text":
+                            // Skip the 'text' attribute, we already processed it.
+                            break;
 
-            var outline = new Outline(childOutlines, text, null);
+                        case "type":
+                            type = String.IsNullOrWhiteSpace(attribute.Value) ? null : attribute.Value;
+                            break;
+                    }
+                }
+            }
+
+            var outline = new Outline(childOutlines, text, type);
             return outline;
         }
     }
