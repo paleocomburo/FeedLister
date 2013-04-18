@@ -66,7 +66,21 @@ namespace FeedLister
                 childOutlines = outlineElements.Select(x => Outline.Parse(x)).ToArray();
             }
 
-            var outline = new Outline(childOutlines, null, null);
+            var textAttribute = outlineElement.Attribute("text");
+            if(textAttribute == null)
+            {
+                // Strictly speaking the text attribute is only required for OPML 2.0, but we'll be a little more strict.
+                throw new Exception("The specified OPML document is not an OPML formatted document. There is a missing 'text' attribute in an 'outline' element.");
+            }
+
+            var text = textAttribute.Value;
+
+            //var outlineAttributes = outlineElement.Attributes();
+            //if(outlineAttributes.Any())
+            //{
+            //}
+
+            var outline = new Outline(childOutlines, text, null);
             return outline;
         }
     }
