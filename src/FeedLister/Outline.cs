@@ -57,15 +57,8 @@ namespace FeedLister
 
 
 
-        public static Outline Parse(XElement outlineElement)
+        public static Outline Parse(XElement outlineElement, bool parentIsComment = false)
         {
-            Outline[] childOutlines = null;
-            var outlineElements = GetChildElements(outlineElement, "outline", false);
-            if(outlineElements.Any())
-            {
-                childOutlines = outlineElements.Select(x => Outline.Parse(x)).ToArray();
-            }
-
             var textAttribute = outlineElement.Attribute("text");
             if(textAttribute == null)
             {
@@ -115,6 +108,13 @@ namespace FeedLister
                             break;
                     }
                 }
+            }
+
+            Outline[] childOutlines = null;
+            var outlineElements = GetChildElements(outlineElement, "outline", false);
+            if (outlineElements.Any())
+            {
+                childOutlines = outlineElements.Select(x => Outline.Parse(x, isComment)).ToArray();
             }
 
             var outline = new Outline(childOutlines, text, type, isComment, isBreakpoint);
