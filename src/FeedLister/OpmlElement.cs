@@ -27,7 +27,7 @@ namespace FeedLister
     {
         protected static IEnumerable<XElement> GetChildElements(XElement rootElement, XName elementName, bool required)
         {
-            var elements = rootElement.Descendants(elementName);
+            var elements = rootElement.Elements(elementName);
             if (required && elements.Any() == false)
             {
                 throw new Exception("The specified OPML document is not an OPML formatted document. Missing '" + elementName.LocalName + "' tag under the '" + rootElement.Name.LocalName + "' tag.");
