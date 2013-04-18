@@ -110,6 +110,9 @@ namespace FeedLister
                 }
             }
 
+            // This outline is a comment if it was specified as being a comment, or if it's parent was a comment.
+            isComment = (isComment || parentIsComment);
+
             Outline[] childOutlines = null;
             var outlineElements = GetChildElements(outlineElement, "outline", false);
             if (outlineElements.Any())
