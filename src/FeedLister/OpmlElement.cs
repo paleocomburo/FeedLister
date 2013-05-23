@@ -28,12 +28,32 @@ namespace FeedLister
         protected static IEnumerable<XElement> GetChildElements(XElement rootElement, XName elementName, bool required)
         {
             var elements = rootElement.Elements(elementName);
-            if (required && elements.Any() == false)
+            if(required && elements.Any() == false)
             {
                 throw new Exception("The specified OPML document is not an OPML formatted document. Missing '" + elementName.LocalName + "' tag under the '" + rootElement.Name.LocalName + "' tag.");
             }
 
             return elements;
+        }
+
+
+
+        protected static DateTime? ParseDateTime(string value, string elementName)
+        {
+            DateTime? result = null;
+
+            if(String.IsNullOrWhiteSpace(value) == false)
+            {
+                DateTime parsedDateTime;
+                if(DateTime.TryParse(value, out parsedDateTime) == false)
+                {
+                    throw new Exception("The '" + elementName + "' value cannot be parsed.");
+                }
+
+                result = parsedDateTime;
+            }
+
+            return result;
         }
     }
 }

@@ -33,7 +33,7 @@ namespace FeedLister
         public bool IsBreakPoint { get; private set; }
 
         public DateTime? Created { get; private set; } // // Must conform to RFC 822. OPML 2.0.
-        public string Categories { get; private set; } // OPML 2.0.
+        public string[] Categories { get; private set; } // OPML 2.0.
         
         // All fields below are for OPML 2.0 type 'rss'
         public string Title { get; private set; }
@@ -77,6 +77,9 @@ namespace FeedLister
 
             string type = null;
             bool isComment = false, isBreakpoint = false;
+            DateTime? created = null;
+            string[] categories = null;
+
             var outlineAttributes = outlineElement.Attributes();
             if (outlineAttributes.Any())
             {
@@ -108,6 +111,15 @@ namespace FeedLister
                                 isBreakpoint = true;
                             }
                             break;
+
+                        case "created":
+                            created = String.IsNullOrWhiteSpace(attribute.Value) ? null : ParseDateTime(attribute.Value, "outline/created");
+                            break;
+
+                        case "category":
+                            categories = String.IsNullOrWhiteSpace(attribute.Value) ? null : attribute.Value.Split(',');
+                            break;
+
                     }
                 }
             }
@@ -122,7 +134,12 @@ namespace FeedLister
                 childOutlines = outlineElements.Select(x => Outline.Parse(x, isComment)).ToArray();
             }
 
-            var outline = new Outline(childOutlines, text, type, isComment, isBreakpoint);
+            var outline = new Outline(childOutlines, text, type, isComment, isBreakpoint)
+            {
+                Created = created,
+                Categories = categories
+            };
+
             return outline;
         }
     }

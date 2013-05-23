@@ -21,7 +21,7 @@ using System.Xml.Linq;
 
 namespace FeedLister
 {
-    public class Head
+    public class Head : OpmlElement
     {
         public string Title { get; private set; }
         public DateTime? DateCreated { get; private set; } // Must conform to RFC 822.
@@ -184,27 +184,7 @@ namespace FeedLister
             return result;
         }
 
-
-
-        private static DateTime? ParseDateTime(string value, string elementName)
-        {
-            DateTime? result = null;
-
-            if (String.IsNullOrWhiteSpace(value) == false)
-            {
-                DateTime parsedDateTime;
-                if (DateTime.TryParse(value, out parsedDateTime) == false)
-                {
-                    throw new Exception("The '" + elementName + "' value cannot be parsed.");
-                }
-
-                result = parsedDateTime;
-            }
-
-            return result;
-        }
-
-
+        
 
         private static string GetSafeValue(XElement element)
         {
