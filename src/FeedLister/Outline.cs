@@ -75,7 +75,7 @@ namespace FeedLister
                 throw new Exception("The specified OPML document is not an OPML formatted document. There is an empty 'text' attribute in an 'outline' element.");
             }
 
-            string type = null;
+            string type = null, url = null;
             bool isComment = false, isBreakpoint = false;
             DateTime? created = null;
             string[] categories = null;
@@ -120,8 +120,33 @@ namespace FeedLister
                             categories = String.IsNullOrWhiteSpace(attribute.Value) ? null : attribute.Value.Split(',');
                             break;
 
+                        case "url":
+                            url = String.IsNullOrWhiteSpace(attribute.Value) ? null : attribute.Value;
+                            break;
                     }
                 }
+            }
+
+            switch(type)
+            {
+                case "rss":
+                    break;
+
+                case "link":
+                    //TODO: Implement inclusion.
+                    if(url == null)
+                    {
+                        throw new Exception("The specified OPML document is not an OPML formatted document. There is a missing 'url' attribute in an 'outline' element of type 'link'.");
+                    }
+                    break;
+
+                case "include":
+                    //TODO: Implement inclusion.
+                    if (url == null)
+                    {
+                        throw new Exception("The specified OPML document is not an OPML formatted document. There is a missing 'url' attribute in an 'outline' element of type 'include'.");
+                    }
+                    break;
             }
 
             // This outline is a comment if it was specified as being a comment, or if it's parent was a comment.
