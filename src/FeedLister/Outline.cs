@@ -34,7 +34,7 @@ namespace FeedLister
 
         public DateTime? Created { get; private set; } // // Must conform to RFC 822. OPML 2.0.
         public string[] Categories { get; private set; } // OPML 2.0.
-        
+
         // All fields below are for OPML 2.0 type 'rss'
         public string Title { get; private set; }
         public Uri XmlUrl { get; private set; } // Required.
@@ -46,8 +46,8 @@ namespace FeedLister
         // All fields below are for OPML 2.0 type 'link' or 'include'.
         public Uri Url { get; private set; } // For type 'include', must point to an OPML file that will be included in-place.
 
-        
-        
+
+
         public Outline(Outline[] childOutlines, string text, string type, bool isComment, bool isBreakPoint = false)
         {
             this.Outlines = childOutlines;
@@ -62,20 +62,21 @@ namespace FeedLister
         public static Outline Parse(XElement outlineElement, bool parentIsComment = false)
         {
             var textAttribute = outlineElement.Attribute("text");
-            if(textAttribute == null)
+            if (textAttribute == null)
             {
                 // Strictly speaking the text attribute is only required for OPML 2.0, but we'll be a little more strict.
                 throw new Exception("The specified OPML document is not an OPML formatted document. There is a missing 'text' attribute in an 'outline' element.");
             }
 
             var text = textAttribute.Value;
-            if(String.IsNullOrWhiteSpace(text))
+            if (String.IsNullOrWhiteSpace(text))
             {
                 // Strictly speaking the text attribute is only required for OPML 2.0, but we'll be a little more strict.
                 throw new Exception("The specified OPML document is not an OPML formatted document. There is an empty 'text' attribute in an 'outline' element.");
             }
 
-            string type = null, url = null;
+            string type = null, title = null, description = null, language = null, version = null;
+            Uri url = null, xmlUrl = null, htmlUrl = null;
             bool isComment = false, isBreakpoint = false;
             DateTime? created = null;
             string[] categories = null;
@@ -83,9 +84,9 @@ namespace FeedLister
             var outlineAttributes = outlineElement.Attributes();
             if (outlineAttributes.Any())
             {
-                foreach(var attribute in outlineAttributes)
+                foreach (var attribute in outlineAttributes)
                 {
-                    var attributeName = attribute.Name.ToString();
+                    var attributeName = attribute.Name.ToString().ToLower();
                     switch (attributeName)
                     {
                         case "text":
@@ -96,15 +97,15 @@ namespace FeedLister
                             type = String.IsNullOrWhiteSpace(attribute.Value) ? null : attribute.Value;
                             break;
 
-                        case "isComment":
+                        case "iscomment":
                             var isCommentValue = String.IsNullOrWhiteSpace(attribute.Value) ? "false" : attribute.Value;
-                            if(String.Compare(isCommentValue, "true", StringComparison.OrdinalIgnoreCase) == 0)
+                            if (String.Compare(isCommentValue, "true", StringComparison.OrdinalIgnoreCase) == 0)
                             {
                                 isComment = true;
                             }
                             break;
 
-                        case "isBreakpoint":
+                        case "isbreakpoint":
                             var isBreakpointValue = String.IsNullOrWhiteSpace(attribute.Value) ? "false" : attribute.Value;
                             if (String.Compare(isBreakpointValue, "true", StringComparison.OrdinalIgnoreCase) == 0)
                             {
@@ -113,7 +114,7 @@ namespace FeedLister
                             break;
 
                         case "created":
-                            created = String.IsNullOrWhiteSpace(attribute.Value) ? null : ParseDateTime(attribute.Value, "outline/created");
+                            created = ParseDateTime(attribute.Value, "outline/@created");
                             break;
 
                         case "category":
@@ -121,27 +122,53 @@ namespace FeedLister
                             break;
 
                         case "url":
-                            url = String.IsNullOrWhiteSpace(attribute.Value) ? null : attribute.Value;
+                            url = ParseUrl(attribute.Value, "outline/@url");
+                            break;
+
+                        case "xmlurl":
+                            xmlUrl = ParseUrl(attribute.Value, "outline/@xmlUrl");
+                            break;
+
+                        case "title":
+                            title = String.IsNullOrWhiteSpace(attribute.Value) ? null : attribute.Value;
+                            break;
+
+                        case "description":
+                            description = String.IsNullOrWhiteSpace(attribute.Value) ? null : attribute.Value;
+                            break;
+
+                        case "language":
+                            language = String.IsNullOrWhiteSpace(attribute.Value) ? null : attribute.Value;
+                            break;
+
+                        case "version":
+                            version = String.IsNullOrWhiteSpace(attribute.Value) ? null : attribute.Value;
+                            break;
+
+                        case "htmlurl":
+                            htmlUrl = ParseUrl(attribute.Value, "outline/@htmlUrl");
                             break;
                     }
                 }
             }
 
-            switch(type)
+            switch (type)
             {
                 case "rss":
+                    if(xmlUrl == null)
+                    {
+                        throw new Exception("The specified OPML document is not an OPML formatted document. There is a missing 'xmlUrl' attribute in an 'outline' element of type 'rss'.");
+                    }
                     break;
 
                 case "link":
-                    //TODO: Implement inclusion.
-                    if(url == null)
+                    if (url == null)
                     {
                         throw new Exception("The specified OPML document is not an OPML formatted document. There is a missing 'url' attribute in an 'outline' element of type 'link'.");
                     }
                     break;
 
                 case "include":
-                    //TODO: Implement inclusion.
                     if (url == null)
                     {
                         throw new Exception("The specified OPML document is not an OPML formatted document. There is a missing 'url' attribute in an 'outline' element of type 'include'.");
@@ -162,7 +189,14 @@ namespace FeedLister
             var outline = new Outline(childOutlines, text, type, isComment, isBreakpoint)
             {
                 Created = created,
-                Categories = categories
+                Categories = categories,
+                XmlUrl = xmlUrl,
+                Url = url,
+                Title = title,
+                Description = description,
+                Language = language,
+                Version = version,
+                HtmlUrl = htmlUrl
             };
 
             return outline;

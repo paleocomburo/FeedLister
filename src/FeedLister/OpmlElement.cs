@@ -47,10 +47,27 @@ namespace FeedLister
                 DateTime parsedDateTime;
                 if(DateTime.TryParse(value, out parsedDateTime) == false)
                 {
-                    throw new Exception("The '" + elementName + "' value cannot be parsed.");
+                    throw new Exception("The '" + elementName + "' value cannot be parsed as a date/time.");
                 }
 
                 result = parsedDateTime;
+            }
+
+            return result;
+        }
+
+
+
+        protected static Uri ParseUrl(string value, string elementName)
+        {
+            Uri result = null;
+
+            if(String.IsNullOrWhiteSpace(value) == false)
+            {
+                if(Uri.TryCreate(value, UriKind.Absolute, out result) == false)
+                {
+                    throw new Exception("The '" + elementName + "' value cannot be parsed as a URL.");
+                }
             }
 
             return result;
