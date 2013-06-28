@@ -34,10 +34,10 @@ namespace FeedLister
 
 
 
-        public static Body Parse(XElement bodyElement)
+        public static Body Parse(XElement bodyElement, bool strict = true)
         {
             var outlineElements = GetChildElements(bodyElement, "outline", true);
-            var outlines = outlineElements.Select(x => Outline.Parse(x)).ToArray();
+            var outlines = outlineElements.Select(x => Outline.Parse(x, false, strict)).ToArray();
             
             var body = new Body(outlines);
             return body;

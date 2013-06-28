@@ -59,20 +59,26 @@ namespace FeedLister
 
 
 
-        public static Outline Parse(XElement outlineElement, bool parentIsComment = false)
+        public static Outline Parse(XElement outlineElement, bool parentIsComment = false, bool strict = true)
         {
+            string text = null;
             var textAttribute = outlineElement.Attribute("text");
-            if (textAttribute == null)
+            if(textAttribute == null)
             {
-                // Strictly speaking the text attribute is only required for OPML 2.0, but we'll be a little more strict.
-                throw new Exception("The specified OPML document is not an OPML formatted document. There is a missing 'text' attribute in an 'outline' element.");
+                if(strict)
+                {
+                    // Strictly speaking the text attribute is only required for OPML 2.0, but we'll be a little more strict.
+                    throw new Exception("The specified OPML document is not an OPML formatted document. There is a missing 'text' attribute in an 'outline' element.");
+                }
             }
-
-            var text = textAttribute.Value;
-            if (String.IsNullOrWhiteSpace(text))
+            else
             {
-                // Strictly speaking the text attribute is only required for OPML 2.0, but we'll be a little more strict.
-                throw new Exception("The specified OPML document is not an OPML formatted document. There is an empty 'text' attribute in an 'outline' element.");
+                text = textAttribute.Value;
+                if(String.IsNullOrWhiteSpace(text) && strict)
+                {
+                    // Strictly speaking the text attribute is only required for OPML 2.0, but we'll be a little more strict.
+                    throw new Exception("The specified OPML document is not an OPML formatted document. There is an empty 'text' attribute in an 'outline' element.");
+                }
             }
 
             string type = null, title = null, description = null, language = null, version = null;
@@ -183,7 +189,7 @@ namespace FeedLister
             var outlineElements = GetChildElements(outlineElement, "outline", false);
             if (outlineElements.Any())
             {
-                childOutlines = outlineElements.Select(x => Outline.Parse(x, isComment)).ToArray();
+                childOutlines = outlineElements.Select(x => Outline.Parse(x, isComment, strict)).ToArray();
             }
 
             var outline = new Outline(childOutlines, text, type, isComment, isBreakpoint)

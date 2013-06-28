@@ -42,7 +42,7 @@ namespace FeedLister
 
 
 
-        public static OpmlDocument Create(XDocument opml)
+        public static OpmlDocument Create(XDocument opml, bool strict = true)
         {
             if(opml.Root == null || opml.Root.Name != "opml")
             {
@@ -50,33 +50,45 @@ namespace FeedLister
             }
 
             var opmlTag = opml.Root;
+            string opmlVersion = "1.0";
             var opmlVersionAttribute = opmlTag.Attributes("version").FirstOrDefault();
             if(opmlVersionAttribute == null)
             {
-                throw new Exception("The specified OPML document is not an OPML formatted document. Missing 'version' attribute on the 'opml' tag.");
+                if(strict)
+                {
+                    throw new Exception("The specified OPML document is not an OPML formatted document. Missing 'version' attribute on the 'opml' tag.");
+                }
             }
-
-            var opmlVersion = opmlVersionAttribute.Value;
-            Regex versionRegex = new Regex(@"^\d\.\d$");
-            if(versionRegex.IsMatch(opmlVersion) == false)
+            else
             {
-                throw new Exception("The specified OPML document is not an OPML formatted document. The 'version' attribute on the 'opml' tag contains an invalid version.");
+                opmlVersion = opmlVersionAttribute.Value;
+                Regex versionRegex = new Regex(@"^\d\.\d$");
+                if(versionRegex.IsMatch(opmlVersion) == false)
+                {
+                    throw new Exception("The specified OPML document is not an OPML formatted document. The 'version' attribute on the 'opml' tag contains an invalid version.");
+                }
             }
 
+            Head head = null;
             var headTagList = opmlTag.Descendants("head");
             var headTagCount = headTagList.Count();
             if(headTagCount == 0)
             {
-                throw new Exception("The specified OPML document is not an OPML formatted document. Missing 'head' tag under the 'opml' tag.");
+                if(strict)
+                {
+                    throw new Exception("The specified OPML document is not an OPML formatted document. Missing 'head' tag under the 'opml' tag.");
+                }
             }
-
-            if(headTagCount > 1)
+            else
             {
-                throw new Exception("The specified OPML document is not an OPML formatted document. More than 1 'head' tag under the 'opml' tag.");
-            }
+                if(headTagCount > 1 && strict)
+                {
+                    throw new Exception("The specified OPML document is not an OPML formatted document. More than 1 'head' tag under the 'opml' tag.");
+                }
 
-            var headTag = headTagList.First();
-            var head = Head.Parse(headTag);
+                var headTag = headTagList.First();
+                head = Head.Parse(headTag);
+            }
 
             var bodyTagList = opmlTag.Descendants("body");
             var bodyTagCount = bodyTagList.Count();
@@ -85,13 +97,13 @@ namespace FeedLister
                 throw new Exception("The specified OPML document is not an OPML formatted document. Missing 'body' tag under the 'opml' tag.");
             }
 
-            if (bodyTagCount > 1)
+            if (bodyTagCount > 1 && strict)
             {
                 throw new Exception("The specified OPML document is not an OPML formatted document. More than 1 'body' tag under the 'opml' tag.");
             }
 
             var bodyTag = bodyTagList.First();
-            var body = Body.Parse(bodyTag);
+            var body = Body.Parse(bodyTag, strict);
 
             var opmlDocument = new OpmlDocument(opmlVersion, head, body);
             return opmlDocument;
